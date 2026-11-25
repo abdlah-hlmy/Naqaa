@@ -45,6 +45,6 @@ npm run dev
 
 ## عن المطوّر
 
-بناء Abdlah Hlmy، مطوّر مواقع (Next.js وSupabase). [حسابي على GitHub](https://github.com/abdlah-hlmy)
+بناء Abdlah Hlmy، مطوّر مواقع (Next.js وSupabase). للتواصل واتساب: [01559189500](https://wa.me/201559189500)
 
 </div>
