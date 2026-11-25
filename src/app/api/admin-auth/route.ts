@@ -1,32 +1,13 @@
-import crypto from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
-
-const COOKIE_NAME = 'naqaa_admin_session';
-
-// Admin credentials come only from environment variables.
-// If any is missing, admin login stays disabled (fail closed).
-function getCredentials() {
-  const email = (process.env.ADMIN_EMAIL || '').trim().toLowerCase();
-  const password = process.env.ADMIN_PASSWORD || '';
-  const secret = process.env.ADMIN_SESSION_SECRET || '';
-
-  if (!email || !password || !secret) return null;
-  return { email, password, secret };
-}
-
-function createSessionToken(credentials: { email: string; password: string; secret: string }) {
-  return crypto
-    .createHmac('sha256', credentials.secret)
-    .update(`${credentials.email}:${credentials.password}`)
-    .digest('hex');
-}
+import {
+  ADMIN_COOKIE_NAME,
+  createAdminSessionToken,
+  getAdminCredentials,
+  isAdminSession,
+} from '../../../lib/adminSession';
 
 export async function GET(req: NextRequest) {
-  const credentials = getCredentials();
-  if (!credentials) return NextResponse.json({ authenticated: false });
-
-  const session = req.cookies.get(COOKIE_NAME)?.value;
-  return NextResponse.json({ authenticated: session === createSessionToken(credentials) });
+  return NextResponse.json({ authenticated: isAdminSession(req) });
 }
 
 export async function POST(req: NextRequest) {
@@ -34,11 +15,11 @@ export async function POST(req: NextRequest) {
 
   if (body.action === 'logout') {
     const response = NextResponse.json({ ok: true });
-    response.cookies.delete(COOKIE_NAME);
+    response.cookies.delete(ADMIN_COOKIE_NAME);
     return response;
   }
 
-  const credentials = getCredentials();
+  const credentials = getAdminCredentials();
   if (!credentials) {
     return NextResponse.json(
       { ok: false, error: 'لوحة الإدارة غير مفعّلة حاليًا.' },
@@ -57,7 +38,7 @@ export async function POST(req: NextRequest) {
   }
 
   const response = NextResponse.json({ ok: true });
-  response.cookies.set(COOKIE_NAME, createSessionToken(credentials), {
+  response.cookies.set(ADMIN_COOKIE_NAME, createAdminSessionToken(credentials), {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
