@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Noto Kufi Arabic", system-ui, -apple-system, sans-serif;
+  --color-naqaa-green: #245745;
+  --color-naqaa-dark: #17251F;
+  --color-naqaa-ivory: #FAF8F3;
+  --color-naqaa-beige: #EFEADC;
+  --color-naqaa-sage: #68776E;
+}
+
+@layer base {
+  html {
+    font-family: "Noto Kufi Arabic", system-ui, -apple-system, sans-serif;
+    scroll-behavior: smooth;
+    background-color: #FAF8F3;
+    color: #17251F;
+    overflow-x: clip;
+  }
+
+  body {
+    font-family: "Noto Kufi Arabic", system-ui, -apple-system, sans-serif;
+    background-color: #FAF8F3;
+    color: #17251F;
+    line-height: 1.75;
+    overflow-x: clip;
+  }
+
+  h1, h2, h3, h4 {
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.font-logo {
+  font-family: "Aref Ruqaa", "Noto Kufi Arabic", serif;
+}
+
+/* Subtle spray mist animation keyframes */
+@keyframes naqaa-mist-drift {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.6);
+  }
+  30% {
+    opacity: 0.45;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-22px, -16px) scale(1.25);
+  }
+}
+
+.naqaa-mist-particle {
+  animation: naqaa-mist-drift 3.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .naqaa-mist-particle {
+    animation: none !important;
+    opacity: 0.2;
+  }
+}

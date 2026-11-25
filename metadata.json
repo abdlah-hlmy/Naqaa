@@ -1,0 +1,6 @@
+{
+  "name": "نقاء | NAQAA — خدمات التنظيف الاحترافية في المملكة",
+  "description": "نقاء لخدمات تنظيف المنازل والمكيفات والكنب والسجاد وتنظيف ما بعد التشطيب في المملكة العربية السعودية. عناية واضحة وسعر تعرفه قبل ما نبدأ.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
