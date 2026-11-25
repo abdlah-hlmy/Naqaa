@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
+import { isAdminSession } from '../../../lib/adminSession';
 import { readCmsStore, resetCmsStore, writeCmsStore } from '../../../lib/cmsStore';
 
 export const dynamic = 'force-dynamic';
@@ -12,6 +13,10 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  if (!isAdminSession(req)) {
+    return NextResponse.json({ ok: false, error: 'غير مصرح.' }, { status: 401 });
+  }
+
   try {
     const body = (await req.json()) as {
       action?: 'reset';
