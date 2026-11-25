@@ -3,28 +3,30 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const COOKIE_NAME = 'naqaa_admin_session';
 
+// Admin credentials come only from environment variables.
+// If any is missing, admin login stays disabled (fail closed).
 function getCredentials() {
-  return {
-    email: (process.env.ADMIN_EMAIL || 'info@naqaa.sa').trim().toLowerCase(),
-    password: process.env.ADMIN_PASSWORD || 'Naqaa@2026',
-  };
+  const email = (process.env.ADMIN_EMAIL || '').trim().toLowerCase();
+  const password = process.env.ADMIN_PASSWORD || '';
+  const secret = process.env.ADMIN_SESSION_SECRET || '';
+
+  if (!email || !password || !secret) return null;
+  return { email, password, secret };
 }
 
-function createSessionToken() {
-  const credentials = getCredentials();
-  const secret =
-    process.env.ADMIN_SESSION_SECRET ||
-    'naqaa-admin-session-2026-local-change-before-production';
-
+function createSessionToken(credentials: { email: string; password: string; secret: string }) {
   return crypto
-    .createHmac('sha256', secret)
+    .createHmac('sha256', credentials.secret)
     .update(`${credentials.email}:${credentials.password}`)
     .digest('hex');
 }
 
 export async function GET(req: NextRequest) {
+  const credentials = getCredentials();
+  if (!credentials) return NextResponse.json({ authenticated: false });
+
   const session = req.cookies.get(COOKIE_NAME)?.value;
-  return NextResponse.json({ authenticated: session === createSessionToken() });
+  return NextResponse.json({ authenticated: session === createSessionToken(credentials) });
 }
 
 export async function POST(req: NextRequest) {
@@ -37,6 +39,13 @@ export async function POST(req: NextRequest) {
   }
 
   const credentials = getCredentials();
+  if (!credentials) {
+    return NextResponse.json(
+      { ok: false, error: 'لوحة الإدارة غير مفعّلة حاليًا.' },
+      { status: 503 }
+    );
+  }
+
   const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
   const password = typeof body.password === 'string' ? body.password : '';
 
@@ -48,7 +57,7 @@ export async function POST(req: NextRequest) {
   }
 
   const response = NextResponse.json({ ok: true });
-  response.cookies.set(COOKIE_NAME, createSessionToken(), {
+  response.cookies.set(COOKIE_NAME, createSessionToken(credentials), {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
